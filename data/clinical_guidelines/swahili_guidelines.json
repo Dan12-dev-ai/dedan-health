@@ -1,0 +1,72 @@
+[
+  {
+    "condition": "maumivu_ya_kifua",
+    "symptoms": ["maumivu ya kifua", "maumivu ya kifua", "shida za kupumua"],
+    "triage_criteria": {
+      "emergency_keywords": ["maumivu ya kifua pamoja na shida ya kupumua", "maumivu ya kifua unaenea kwenye mkono", "maumivu ya kifua pamoja na kizunguzungu"],
+      "age_risk_factor": 40,
+      "duration_threshold": "dakika 15"
+    },
+    "recommendations": "Maumivu ya kifua huhitaji tathmini ya dharura haraka. Sababu zinazowezekwa ni pigo la moyo, kiharusi cha mapafy, au kikanso cha aorta.",
+    "language": "sw",
+    "source": "WHO"
+  },
+  {
+    "condition": "homa",
+    "symptoms": ["homa", "joto la mwili", "kuchoka"],
+    "triage_criteria": {
+      "temperature_threshold": 38.5,
+      "duration_threshold": "siku 3",
+      "emergency_keywords": ["homa pamoja na shida ya shingo", "homa pamoja na kuchanganyikiwa", "homa pamoja na upele"]
+    },
+    "recommendations": "Tiba ya kujitegemea kwa homa ya chini (<38.5°C). Tafuta tiba ya kimatibabu ikiwa homa >39°C au inaendelea kwa zaidi ya siku 3.",
+    "language": "sw",
+    "source": "WHO"
+  },
+  {
+    "condition": "dharura_za_uzazi",
+    "symptoms": ["kuvuja damu", "maumivu makali ya tumbo", "kutoona harakati za mtoto"],
+    "triage_criteria": {
+      "emergency_keywords": ["kuvuja damu nyingi", "maumivu makali ya tumbo", "kutoona harakati za mtoto", "mikono ya awali kabla ya wiki 37"],
+      "gestation_threshold": 20
+    },
+    "recommendations": "Dharura za uzazi huhitaji usaidizi wa kimatibabu haraka. Nenda hospitali karibu.",
+    "language": "sw",
+    "source": "WHO"
+  },
+  {
+    "condition": "kisukari",
+    "symptoms": ["kisukari", "sukari nyingi", "njaa ya kukojoa"],
+    "triage_criteria": {
+      "glucose_thresholds": {
+        "low": 70,
+        "high": 400
+      }
+    },
+    "recommendations": "Kisukari cha chini (low blood sugar) huhitaji ulaji wa glucose haraka. Kisukari cha juu kinaweza kuhitaji usaidizi wa kimatibabu ikiwa ni kikali.",
+    "language": "sw",
+    "source": "WHO"
+  },
+  {
+    "condition": "maumivu_ya_kichwa",
+    "symptoms": ["maumivu ya kichwa", "kichwa kutuma", "migraine"],
+    "triage_criteria": {
+      "emergency_keywords": ["maumivu mabaya zaidi maishani", "maumivu ya kichwa pamoja na homa", "maumivu ya kichwa pamoja na matatizo ya kuona", "maumivu ya kichwa baada ya kuumwa kichwa"],
+      "duration_threshold": "siku 3"
+    },
+    "recommendations": "Maumivu mengi hayo mabaya. Tafuta tiba ya kimatibabu kwa maumivu makali au yasiyoisha.",
+    "language": "sw",
+    "source": "WHO"
+  },
+  {
+    "condition": "maumivu_ya_tumbo",
+    "symptoms": ["maumivu ya tumbo", "tumbo kuumwa", "cramps", "kichefuchefu"],
+    "triage_criteria": {
+      "emergency_keywords": ["maumivu makali ya tumbo", "tumbo kuumwa pamoja na kutapika damu", "tumbo kuumwa wakati wa ujauzito"],
+      "duration_threshold": "siku 2"
+    },
+    "recommendations": "Maumivu ya chini ya tumbo yaweza kujitibiwa nyumbani. Tafuta tiba ya kimatibabu kwa maumivu makali au yasiyoisha.",
+    "language": "sw",
+    "source": "WHO"
+  }
+]

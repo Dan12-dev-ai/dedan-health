@@ -1,0 +1,77 @@
+{
+  "name": "dedan-health-web",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "DEDAN Health Web PWA - AI-powered healthcare triage platform",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --ext ts,tsx --fix",
+    "type-check": "tsc --noEmit",
+    "serve": "vite preview --port 4173",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.8.0",
+    "axios": "^1.3.4",
+    "@mui/material": "^5.11.0",
+    "@mui/icons-material": "^5.11.0",
+    "@emotion/react": "^11.10.5",
+    "@emotion/styled": "^11.10.5",
+    "@mui/lab": "^5.0.0-alpha.119",
+    "workbox-window": "^6.5.3",
+    "workbox-precaching": "^6.5.3",
+    "react-hook-form": "^7.43.1",
+    "react-query": "^3.39.3",
+    "date-fns": "^2.29.3",
+    "recharts": "^2.5.0",
+    "react-hot-toast": "^2.4.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.27",
+    "@types/react-dom": "^18.0.10",
+    "@typescript-eslint/eslint-plugin": "^5.52.0",
+    "@typescript-eslint/parser": "^5.52.0",
+    "@vitejs/plugin-react": "^3.1.0",
+    "eslint": "^8.34.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.3.4",
+    "typescript": "^4.9.4",
+    "vite": "^4.1.1",
+    "vite-plugin-pwa": "^0.14.4",
+    "vitest": "^0.28.5",
+    "@testing-library/react": "^14.0.0",
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/user-event": "^14.4.3",
+    "jsdom": "^21.1.0"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "keywords": [
+    "healthcare",
+    "ai",
+    "triage",
+    "medical",
+    "pwa",
+    "react",
+    "typescript"
+  ],
+  "author": "DEDAN Health Team",
+  "license": "MIT"
+}

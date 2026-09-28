@@ -1,0 +1,132 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dedan-messaging-backend
+  namespace: dedan-health
+  labels:
+    app: dedan-messaging-backend
+    version: "2.0.0"
+    component: "messaging-integration"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: dedan-messaging-backend
+  template:
+    metadata:
+      labels:
+        app: dedan-messaging-backend
+        version: "2.0.0"
+        component: "messaging-integration"
+    spec:
+      containers:
+      - name: messaging-service
+        image: dedan/messaging-backend:v2.0.0
+        ports:
+        - containerPort: 8001
+        env:
+        - name: TWILIO_ACCOUNT_SID
+          valueFrom:
+            secretKeyRef:
+              name: dedan-secrets
+              key: TWILIO_ACCOUNT_SID
+        - name: TWILIO_AUTH_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: dedan-secrets
+              key: TWILIO_AUTH_TOKEN
+        - name: TWILIO_PHONE_NUMBER
+          valueFrom:
+            secretKeyRef:
+              name: dedan-secrets
+              key: TWILIO_PHONE_NUMBER
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: dedan-secrets
+              key: REDIS_URL
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: dedan-secrets
+              key: DATABASE_URL
+        - name: DEDAN_API_URL
+          valueFrom:
+            secretKeyRef:
+              name: dedan-secrets
+              key: DEDAN_API_URL
+        - name: MAX_MESSAGE_LENGTH
+          value: "160"
+        - name: SESSION_TIMEOUT
+          value: "3600"
+        - name: RATE_LIMIT_WINDOW
+          value: "3600"
+        - name: RATE_LIMIT_MESSAGES
+          value: "10"
+        - name: LOG_LEVEL
+          value: "INFO"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8001
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8001
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dedan-messaging-backend-service
+  namespace: dedan-health
+  labels:
+    app: dedan-messaging-backend
+spec:
+  selector:
+    app: dedan-messaging-backend
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8001
+  type: ClusterIP
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: dedan-messaging-backend-hpa
+  namespace: dedan-health
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: dedan-messaging-backend
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80

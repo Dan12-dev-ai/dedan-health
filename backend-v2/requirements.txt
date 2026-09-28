@@ -1,0 +1,36 @@
+# =============================================================================
+# DEDAN Health — backend runtime dependencies
+#
+# This file lists ONLY what `main_clinical:app` actually imports at runtime.
+# It was verified by importing the application in a clean virtualenv; see
+# docs/development.md for the verification command.
+#
+# Optional/lazy capability modules (billing, hub, chronic care, EMR, the
+# LangChain/CrewAI agent graph) are NOT imported by the Clinical API and are
+# therefore not required here. See docs/architecture.md.
+#
+#   python -m venv .venv
+#   .venv/bin/pip install -r backend-v2/requirements.txt
+# =============================================================================
+
+# --- Web framework ----------------------------------------------------------
+fastapi>=0.110
+uvicorn[standard]>=0.27
+python-multipart>=0.0.9        # multipart/form-data for image uploads
+
+# --- Settings & validation --------------------------------------------------
+pydantic>=2.6
+pydantic-settings>=2.2         # env-driven Settings (app/core/config.py)
+
+# --- Image pipeline ---------------------------------------------------------
+Pillow>=10.2                    # image_service.py: decode + quality assessment
+
+# --- AI provider adapters ---------------------------------------------------
+# Imported by providers/gemini_provider.py and providers/openai_provider.py.
+# Both are only *called* in live mode; importing them in offline mode is safe.
+google-generativeai>=0.8
+openai>=1.30
+
+# --- Test suite -------------------------------------------------------------
+httpx>=0.27                     # fastapi.testclient transport
+pytest>=8.0

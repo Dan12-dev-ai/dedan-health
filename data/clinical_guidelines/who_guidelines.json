@@ -1,0 +1,85 @@
+[
+  {
+    "condition": "chest_pain",
+    "symptoms": ["chest pain", "chest discomfort", "chest pressure", "chest tightness"],
+    "triage_criteria": {
+      "emergency_keywords": ["chest pain with shortness of breath", "chest pain radiating to arm", "chest pain with sweating"],
+      "age_risk_factor": 40,
+      "duration_threshold": "15 minutes"
+    },
+    "recommendations": "Chest pain requires immediate emergency evaluation. Possible causes include heart attack, pulmonary embolism, or aortic dissection.",
+    "language": "en",
+    "source": "WHO"
+  },
+  {
+    "condition": "difficulty_breathing",
+    "symptoms": ["shortness of breath", "difficulty breathing", "can't breathe", "breathing problems"],
+    "triage_criteria": {
+      "emergency_keywords": ["severe shortness of breath", "can't speak in full sentences", "blue lips"],
+      "age_risk_factor": 65,
+      "duration_threshold": "immediate"
+    },
+    "recommendations": "Difficulty breathing is a medical emergency. Seek immediate medical attention.",
+    "language": "en",
+    "source": "WHO"
+  },
+  {
+    "condition": "fever",
+    "symptoms": ["fever", "high temperature", "feeling hot", "chills"],
+    "triage_criteria": {
+      "temperature_threshold": 38.5,
+      "duration_threshold": "3 days",
+      "emergency_keywords": ["fever with stiff neck", "fever with confusion", "fever with rash"]
+    },
+    "recommendations": "Self-care for mild fever (<38.5°C). Seek medical attention if fever >39°C or persists >3 days.",
+    "language": "en",
+    "source": "WHO"
+  },
+  {
+    "condition": "pregnancy_emergency",
+    "symptoms": ["vaginal bleeding", "severe abdominal pain", "decreased fetal movement", "contractions"],
+    "triage_criteria": {
+      "emergency_keywords": ["heavy bleeding", "severe pain", "no fetal movement", "regular contractions before 37 weeks"],
+      "gestation_threshold": 20
+    },
+    "recommendations": "Pregnancy emergencies require immediate medical attention. Go to nearest hospital.",
+    "language": "en",
+    "source": "WHO"
+  },
+  {
+    "condition": "diabetes_emergency",
+    "symptoms": ["low blood sugar", "high blood sugar", "confusion", "excessive thirst", "frequent urination"],
+    "triage_criteria": {
+      "emergency_keywords": ["unconscious", "seizure", "confusion", "difficulty breathing"],
+      "glucose_thresholds": {
+        "low": 70,
+        "high": 400
+      }
+    },
+    "recommendations": "Hypoglycemia requires immediate glucose intake. Hyperglycemia may need medical attention if severe.",
+    "language": "en",
+    "source": "WHO"
+  },
+  {
+    "condition": "headache",
+    "symptoms": ["headache", "head pain", "migraine", "head pressure"],
+    "triage_criteria": {
+      "emergency_keywords": ["worst headache of life", "headache with fever", "headache with vision changes", "headache after head injury"],
+      "duration_threshold": "3 days"
+    },
+    "recommendations": "Most headaches are not serious but seek medical attention for severe or persistent headaches.",
+    "language": "en",
+    "source": "WHO"
+  },
+  {
+    "condition": "abdominal_pain",
+    "symptoms": ["stomach pain", "abdominal pain", "belly pain", "cramps"],
+    "triage_criteria": {
+      "emergency_keywords": ["severe pain", "pain with fever", "pain with vomiting blood", "pain during pregnancy"],
+      "duration_threshold": "2 days"
+    },
+    "recommendations": "Mild abdominal pain may be self-treated. Seek care for severe pain or pain with other symptoms.",
+    "language": "en",
+    "source": "WHO"
+  }
+]

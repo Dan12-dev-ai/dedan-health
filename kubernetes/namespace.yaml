@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dedan-health
+  labels:
+    name: dedan-health
+    app.kubernetes.io/name: dedan-health
+    app.kubernetes.io/version: "2.0.0"
+    app.kubernetes.io/component: "healthcare-platform"
+    app.kubernetes.io/tier: "production"
+spec:
+  finalizers:
+  - kubernetes
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dedan-health-staging
+  labels:
+    name: dedan-health-staging
+    app.kubernetes.io/name: dedan-health
+    app.kubernetes.io/version: "2.0.0"
+    app.kubernetes.io/component: "healthcare-platform"
+    app.kubernetes.io/tier: "staging"
+spec:
+  finalizers:
+  - kubernetes

@@ -1,0 +1,137 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dedan-chronic-care
+  namespace: dedan-health
+  labels:
+    app: dedan-chronic-care
+    version: "2.0.0"
+    component: "chronic-care-management"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: dedan-chronic-care
+  template:
+    metadata:
+      labels:
+        app: dedan-chronic-care
+        version: "2.0.0"
+        component: "chronic-care-management"
+    spec:
+      containers:
+      - name: chronic-care-service
+        image: dedan/chronic-care:v2.0.0
+        ports:
+        - containerPort: 8001
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: dedan-secrets
+              key: CHRONIC_CARE_DB_URL
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: dedan-secrets
+              key: REDIS_URL
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: MAX_PATIENTS
+          value: "10000"
+        - name: CHECK_IN_REMINDER_INTERVAL
+          value: "3600"  # 1 hour in seconds
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "200m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8001
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8001
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dedan-chronic-care-service
+  namespace: dedan-health
+  labels:
+    app: dedan-chronic-care
+spec:
+  selector:
+    app: dedan-chronic-care
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8001
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: dedan-chronic-care-db
+  namespace: dedan-health
+  labels:
+    app: dedan-chronic-care-db
+    component: "patient-database"
+spec:
+  serviceName: dedan-chronic-care-db
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dedan-chronic-care-db
+  template:
+    metadata:
+      labels:
+        app: dedan-chronic-care-db
+    spec:
+      containers:
+      - name: postgresql
+        image: postgres:15-alpine
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_DB
+          value: dedan_chronic_care
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: dedan-secrets
+              key: CHRONIC_CARE_DB_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: dedan-secrets
+              key: CHRONIC_CARE_DB_PASSWORD
+        volumeMounts:
+        - name: postgres-storage
+          mountPath: /var/lib/postgresql/data
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "300m"
+  volumeClaimTemplates:
+  - metadata:
+      name: postgres-storage
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: "standard"
+      resources:
+        requests:
+          storage: 10Gi

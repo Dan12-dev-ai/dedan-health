@@ -1,0 +1,72 @@
+[
+  {
+    "condition": "እግረኛ ህመም",
+    "symptoms": ["እግረኛ ህመም", "እግረኛ ህመም", "ስከት የሚያስ"],
+    "triage_criteria": {
+      "emergency_keywords": ["እግረኛ ህመም ከሞት የሚያስ", "እግረኛ ህመም ከእስክ ተራስ", "እግረኛ ህመም ከመቅልል ተራስ"],
+      "age_risk_factor": 40,
+      "duration_threshold": "15 ደቂቃዎች"
+    },
+    "recommendations": "እግረኛ ህመም ወሳማ ወደማ ምርጫ የሚአይ ነው። ዝክል ምክል የሚሆኑ ነው። ይሆኑ።",
+    "language": "am",
+    "source": "WHO"
+  },
+  {
+    "condition": "እስከት የሚያስ",
+    "symptoms": ["እስከት የሚያስ", "ሞር እስከት", "እስከት የሚያስ"],
+    "triage_criteria": {
+      "temperature_threshold": 38.5,
+      "duration_threshold": "3 ቀንታት",
+      "emergency_keywords": ["እስከት ከሽን የሚያስ", "እስከት ከሞት የሚያስ", "እስከት ከሞት የሚያስ"]
+    },
+    "recommendations": "ዝክል ህመም ከተማሽ እስከት የሚያስን ይከተዋል። እስከት ከፍተኛ የሚያስ ቢሆኖም ድርጻግ ይማሽ።",
+    "language": "am",
+    "source": "WHO"
+  },
+  {
+    "condition": "የልጅ ማረግ አደጋ",
+    "symptoms": ["ደም መፍሰሽ", "ደም መፍሰሽ", "ማረግ አደጋ"],
+    "triage_criteria": {
+      "emergency_keywords": ["ደም መፍሰሽ ከፍተኛ", "ደም መፍሰሽ ከሽን የሚያስ", "ደም መፍሰሽ ከሽን የሚያስ"],
+      "gestation_threshold": 20
+    },
+    "recommendations": "የልጅ ማረግ አደጋዎች ወደማ ምርጫ የሚአይ ነው። ወደማ ሆስፒታል ይግባ።",
+    "language": "am",
+    "source": "WHO"
+  },
+  {
+    "condition": "የስኳሪ ስኳሪ",
+    "symptoms": ["የስኳሪ ስኳሪ", "የስኳሪ ስኳሪ", "የስኳሪ ስኳሪ"],
+    "triage_criteria": {
+      "glucose_thresholds": {
+        "low": 70,
+        "high": 400
+      }
+    },
+    "recommendations": "የስኳሪ ስኳሪ ዝክል (low blood sugar) ወደማ ግለጽ ግለጽ የሚአይ ነው። የስኳሪ ስኳሪ ከፍተኛ የሚያስ ቢሆኖም ድርጻግ ይማሽ።",
+    "language": "am",
+    "source": "WHO"
+  },
+  {
+    "condition": "ርእም",
+    "symptoms": ["ርእም", "ርእም", "ርእም"],
+    "triage_criteria": {
+      "emergency_keywords": ["ርእም ከፍተኛ", "ርእም ከሽን የሚያስ", "ርእም ከሞት የሚያስ"],
+      "duration_threshold": "3 ቀንታት"
+    },
+    "recommendations": "ብዙ ርእም አይደርዋል። እስከት የሚያስ ወደማ ድርጻግ ይማሽ።",
+    "language": "am",
+    "source": "WHO"
+  },
+  {
+    "condition": "የቆልፍያ ህመም",
+    "symptoms": ["የቆልፍያ ህመም", "ቆልፍያ መቃጫት", "ቆልፍያ መቃጫት"],
+    "triage_criteria": {
+      "emergency_keywords": ["ቆልፍያ መቃጫት ከፍተኛ", "ቆልፍያ መቃጫት ከሽን የሚያስ", "ቆልፍያ መቃጫት ከሞት የሚያስ"],
+      "duration_threshold": "2 ቀንታት"
+    },
+    "recommendations": "የቆልፍያ ህመም ዝክል ይከተዋል። የቆልፍያ ህመም ከፍተኛ የሚያስ ቢሆኖም ድርጻግ ይማሽ።",
+    "language": "am",
+    "source": "WHO"
+  }
+]

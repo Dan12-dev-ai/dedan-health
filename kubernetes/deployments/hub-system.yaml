@@ -1,0 +1,132 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dedan-hub-system
+  namespace: dedan-health
+  labels:
+    app: dedan-hub-system
+    version: "2.0.0"
+    component: "multi-clinic-federation"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: dedan-hub-system
+  template:
+    metadata:
+      labels:
+        app: dedan-hub-system
+        version: "2.0.0"
+        component: "multi-clinic-federation"
+    spec:
+      containers:
+      - name: hub-service
+        image: dedan/hub-system:v2.0.0
+        ports:
+        - containerPort: 8003
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: dedan-secrets
+              key: HUB_DATABASE_URL
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: dedan-secrets
+              key: HUB_REDIS_URL
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: MAX_CLINICS
+          value: "1000"
+        - name: KNOWLEDGE_SHARING_ENABLED
+          value: "true"
+        - name: CONSENSUS_THRESHOLD
+          value: "0.8"
+        - name: DATA_RETENTION_DAYS
+          value: "365"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "300m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8003
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8003
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dedan-hub-system-service
+  namespace: dedan-health
+  labels:
+    app: dedan-hub-system
+spec:
+  selector:
+    app: dedan-hub-system
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8003
+  type: ClusterIP
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: dedan-hub-consensus-builder
+  namespace: dedan-health
+  labels:
+    app: dedan-hub-system
+    component: "consensus-builder"
+spec:
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: consensus-builder
+            image: dedan/hub-system:v2.0.0
+            command: ["python", "-c", "import asyncio; from hub_system import dedan_hub; asyncio.run(dedan_hub.build_consensus_rules())"]
+            env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: dedan-secrets
+                  key: HUB_DATABASE_URL
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: dedan-secrets
+                  key: HUB_REDIS_URL
+            restartPolicy: OnFailure
+  successfulJobsHistoryLimit: 3
+  concurrencyPolicy: Forbid
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: dedan-hub-storage
+  namespace: dedan-health
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: "standard"
+  resources:
+    requests:
+      storage: 100Gi
