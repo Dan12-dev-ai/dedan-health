@@ -1,0 +1,58 @@
+%% DEDAN Health — POST /api/analyze request flow
+%% Shows the order of operations and the failure path for each gate.
+sequenceDiagram
+    autonumber
+    participant U as User
+    participant UI as Web Portal
+    participant MW as Middleware
+    participant R as /api/analyze
+    participant V as Pydantic
+    participant O as Orchestrator
+    participant P as Provider
+    participant S as SafetyValidator
+    participant T as Transformer
+
+    U->>UI: Describe symptoms (+ optional image / voice)
+    UI->>MW: POST /api/analyze
+    MW->>MW: Rate limit (per client IP)
+
+    alt Rate limit exceeded
+        MW-->>UI: 429 RATE_LIMIT_EXCEEDED
+    end
+
+    MW->>R: Forward
+    R->>V: Validate AnalyzeRequest
+    alt Invalid body
+        V-->>UI: 422 VALIDATION_ERROR
+    end
+
+    R->>R: Consent gate
+    alt consent == false
+        R-->>UI: 400 CONSENT_REQUIRED
+    end
+
+    R->>R: Assemble text, duration, severity, history
+    R->>R: Resolve image_ids and decode base64 images
+    R->>O: process(text, images, transcript, profile)
+    O->>P: analyze_multimodal(request)
+
+    alt Live provider selected
+        P-->>O: AnalysisResponse (vendor-shaped)
+    else Offline provider (default)
+        P-->>O: AnalysisResponse (deterministic)
+    end
+
+    O->>S: validate_async(response, profile)
+    S->>S: Red-flag / urgency / uncertainty checks
+    S-->>O: SafetyCheckResult
+    O->>S: apply_safety_result_async
+    Note over S: Urgency is escalated,<br/>never downgraded
+
+    O-->>R: AnalysisResponse
+    R->>T: transform(result, clinical_context)
+    T->>T: Build clinical context
+    T->>T: Attach education + medication verification
+    T-->>R: ClinicalResponse
+    R-->>UI: 200 structured clinical document
+    R-->>R: Background: write audit log entry
+    UI-->>U: Render results + next steps + disclaimer

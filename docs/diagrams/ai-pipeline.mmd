@@ -1,0 +1,46 @@
+%% DEDAN Health — AI provider selection and safety pipeline
+%% Highlights the offline/live decision and the escalate-only safety rule.
+flowchart TD
+    START([Analysis request]) --> CREDS{Credentials usable?}
+
+    CREDS -->|No usable key| OFF[OfflineProvider]
+    CREDS -->|Usable key| MODE{AI_PROVIDER_MODE}
+    MODE -->|offline / mock / local / rules| OFF
+    MODE -->|anything else| ROUTE[Capability-based routing]
+
+    ROUTE --> TEXT_SLOT[text provider<br/>default: openai]
+    ROUTE --> VISION_SLOT[vision provider<br/>default: gemini]
+    ROUTE --> MM_SLOT[multimodal provider<br/>default: gemini]
+
+    TEXT_SLOT --> CALL[Live provider call<br/>usage may be billed]
+    VISION_SLOT --> CALL
+    MM_SLOT --> CALL
+
+    CALL --> FALLBACK{Failed with<br/>retryable error?}
+    FALLBACK -->|Yes| NEXT[Try next fallback provider]
+    NEXT --> CALL
+    FALLBACK -->|No| MERGE[Normalise to AnalysisResponse]
+    FALLBACK -->|All providers failed| ERR[ProviderError]
+
+    OFF --> MERGE
+
+    MERGE --> SAFETY[SafetyValidator]
+    SAFETY --> R1{Emergency<br/>red flag?}
+    R1 -->|Yes| ESC[Escalate to emergency<br/>+ emergency number]
+    R1 -->|No| R2{Uncertainty<br/>detected?}
+    R2 -->|Yes| UNC[Attach uncertainty statement]
+    R2 -->|No| R3{Reads like a<br/>prescription?}
+    R3 -->|Yes| FLAG[Flag and strip]
+    R3 -->|No| PASS[Pass through]
+
+    ESC --> OUT
+    UNC --> OUT
+    FLAG --> OUT
+    PASS --> OUT
+
+    OUT([Structured clinical response])
+
+    classDef safe fill:#e8f5e9,stroke:#2e7d32,color:#1b5e20
+    classDef caution fill:#fff8e1,stroke:#f9a825,color:#e65100
+    class ESC,FLAG safe
+    class CALL caution

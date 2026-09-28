@@ -1,0 +1,63 @@
+%% DEDAN Health — system architecture (verified components only)
+%% Render: https://mermaid.live  or  any GitHub Markdown renderer
+flowchart TD
+    USER[Patient / User]
+
+    subgraph FE["Web Portal — web-portal (React + TypeScript + Vite)"]
+        ASSESS[Assessment flow]
+        MULTI[Multimodal input<br/>text · image · voice]
+        RESULTS[Results view]
+        CONSENT[Consent page]
+    end
+
+    subgraph API["Clinical API — backend-v2 (FastAPI)"]
+        MW[Middleware<br/>rate limit · CORS · timing]
+        ROUTES[Route handlers]
+        SCHEMA[Pydantic models<br/>AnalyzeRequest / AnalyzeResponse]
+    end
+
+    subgraph ORCH["Orchestration"]
+        CTXBUILD[Clinical context builder]
+        MORCH[Multimodal orchestrator]
+        FACTORY[ProviderFactory<br/>capability routing + fallback]
+    end
+
+    subgraph PROVIDERS["AI Provider Layer"]
+        OFFLINE[OfflineProvider<br/>deterministic · $0]
+        GEMINI[GeminiProvider<br/>google-generativeai]
+        OPENAI[OpenAIProvider<br/>openai]
+    end
+
+    subgraph SAFETY["Safety & Enrichment"]
+        SAFVAL[SafetyValidator<br/>escalate-only]
+        MEDSAFE[Medication safety<br/>educational only]
+        EVID[Evidence registry<br/>source provenance]
+    end
+
+    RESP[ClinicalResponse<br/>typed + serialized]
+
+    USER --> ASSESS
+    CONSENT --> ASSESS
+    ASSESS --> MULTI
+    MULTI -->|HTTPS / JSON| MW
+    MW --> ROUTES
+    ROUTES <--> SCHEMA
+    ROUTES --> CTXBUILD
+    CTXBUILD --> MORCH
+    MORCH --> FACTORY
+    FACTORY -->|offline| OFFLINE
+    FACTORY -->|live| GEMINI
+    FACTORY -->|live| OPENAI
+    MORCH --> SAFVAL
+    SAFVAL --> CTXBUILD
+    CTXBUILD --> MEDSAFE
+    CTXBUILD --> EVID
+    MEDSAFE --> RESP
+    EVID --> RESP
+    SAFVAL --> RESP
+    RESP -->|structured clinical document| RESULTS
+
+    classDef verified fill:#e8f5e9,stroke:#2e7d32,color:#1b5e20
+    classDef boundary fill:#fff3e0,stroke:#ef6c00,color:#e65100
+    class OFFLINE,SAFVAL,MEDSAFE verified
+    class GEMINI,OPENAI boundary

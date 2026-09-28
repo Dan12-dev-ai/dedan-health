@@ -1,0 +1,129 @@
+# =============================================================================
+# DEDAN Health — CI
+#
+# Verifies the backend test suite, frontend type-safety, frontend tests, and the
+# production build.
+#
+# NO PROVIDER CREDENTIALS ARE USED OR REQUIRED.
+#
+# `AI_PROVIDER_MODE=offline` selects the deterministic provider, and the
+# provider keys are blanked, so the suite is hermetic: no secrets, no network
+# calls to third parties, no cost, and no non-determinism. This mirrors what a
+# contributor or reviewer experiences on a fresh clone.
+# =============================================================================
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# Cancel superseded runs on the same ref to save runner minutes.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Backend tests
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: backend-v2
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: backend-v2/requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Pin offline mode (no credentials, no network)
+        env:
+          AI_PROVIDER_MODE: offline
+          DEBUG: 'false'
+          GEMINI_API_KEY: ''
+          OPENAI_API_KEY: ''
+        run: |
+          # Fail loudly if the environment ever leaks a real credential into CI.
+          if [ -n "${GEMINI_API_KEY}${OPENAI_API_KEY}" ]; then
+            echo "::error::Provider credentials must not be present in CI"
+            exit 1
+          fi
+          echo "AI_PROVIDER_MODE=${AI_PROVIDER_MODE} — running against the offline provider"
+
+      - name: Verify the application imports
+        run: python -c "import main_clinical; print('main_clinical imported OK')"
+
+      - name: Run backend tests
+        env:
+          AI_PROVIDER_MODE: offline
+          DEBUG: 'false'
+          GEMINI_API_KEY: ''
+          OPENAI_API_KEY: ''
+        run: python -m pytest tests/ -v --no-header -p no:warnings
+
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: web-portal
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: web-portal/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Run frontend tests
+        run: npm test
+
+      - name: Production build
+        run: npm run build
+
+  scripts:
+    name: Shell scripts
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Syntax-check the shell scripts
+        run: |
+          for script in scripts/*.sh scripts/lib/*.sh; do
+            echo "Checking ${script}"
+            bash -n "${script}"
+          done
+
+      - name: Validate the clinical response validator
+        run: python -c "import ast,pathlib; ast.parse(pathlib.Path('scripts/lib/validate_clinical_response.py').read_text())"
