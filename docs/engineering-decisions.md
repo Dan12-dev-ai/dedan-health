@@ -183,7 +183,7 @@ model output is never presented as established.
 index, or quote any document. A `Source.url` is a constructed *search link*, and
 `date_published` is never populated. **DEDAN does not currently guarantee source
 provenance.** It is documented as citing rather than retrieving, in
-[evidence-system.md](evidence-system.md), because a citation that implies
+[evidence-citation-registry.md](evidence-citation-registry.md), because a citation that implies
 verification it does not provide is worse than no citation.
 
 ## ADR-007 — Separate frontend and backend deployments

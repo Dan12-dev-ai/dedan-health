@@ -1,4 +1,15 @@
-# Evidence System
+# Evidence Citation Registry
+
+> **What this is:** a curated list of authoritative health sources, and a
+> mechanism for attaching **citations to those sources** to a response.
+>
+> **What this is not:** a retrieval system. The code performs **no network
+> requests**, fetches **no documents**, indexes **nothing**, and quotes **no
+> source text**. Nothing in a DEDAN response has been checked against the
+> source it cites.
+>
+> The previous filename (`evidence-system.md`) implied a capability the code
+> does not have. It was renamed to match the implementation.
 
 ## Summary
 

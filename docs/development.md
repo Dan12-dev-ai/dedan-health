@@ -124,7 +124,7 @@ On Python 3.14.6 / Node 22.23.2:
 
 ```
 backend-v2 $ pytest tests/     →  53 passed
-web-portal $ npm test          →  14 passed, 1 suite
+web-portal $ npm test          →  25 passed, 2 suites
 web-portal $ npx tsc --noEmit  →  0 errors
 web-portal $ npm run build     →  built in ~8s
 scripts/test-system.sh         →  System test: PASSED

@@ -217,7 +217,7 @@ code.
 **The approach.** Every capability claim in this repository maps to code, and
 every gap is stated where a reader will encounter it:
 
-- [Evidence retrieval](evidence-system.md) is documented as a *source registry*,
+- [Evidence retrieval](evidence-citation-registry.md) is documented as a *source registry*,
   not retrieval, with an explicit statement that source provenance is not
   guaranteed.
 - [Multimodal](multimodal.md) is documented as *partially* implemented for

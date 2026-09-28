@@ -1,5 +1,26 @@
 # Security
 
+> ## ⛔ PRODUCTION BLOCKER — no authentication
+>
+> **The DEDAN Health API has no authentication or authorization. Every endpoint
+> is public.** Anyone who can reach the network path can submit an analysis
+> request, upload images, read them back, and delete them.
+>
+> Verified by inspection: `backend-v2/main_clinical.py` contains no
+> `APIKeyHeader`, no `OAuth2PasswordBearer`, no auth dependency, and no
+> `Depends` guard other than internal service accessors. `ADMIN_API_KEY` exists
+> in settings but is used **only** as the `SessionMiddleware` signing secret —
+> it authenticates nothing.
+>
+> **Do not expose this service to any untrusted network, and do not handle real
+> patient data with it, until authentication and per-patient authorization are
+> implemented.** This is a prototype limitation, not a configuration choice.
+>
+> What that work would entail is described under
+> [Before production healthcare deployment](#before-production-healthcare-deployment).
+> It has deliberately **not** been implemented here, because a partial
+> authentication system is worse than a clearly absent one.
+
 This document describes the security model of DEDAN Health as it exists, and
 what would be required before production use in a healthcare setting.
 

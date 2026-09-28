@@ -7,6 +7,23 @@ users** — symptom descriptions, age, sex, medications, allergies, and
 optionally images. That makes this a sensitive-data application even in its
 current prototype state.
 
+> ## ⛔ PRODUCTION BLOCKER — the API is unauthenticated
+>
+> **There is no authentication or authorization on any endpoint.** Anyone who
+> can reach the network path can submit an analysis request, upload images, read
+> them back, and delete them.
+>
+> Verified by inspection: `backend-v2/main_clinical.py` defines no
+> `APIKeyHeader`, no `OAuth2PasswordBearer`, no auth dependency, and no
+> authorization check. The `ADMIN_API_KEY` setting is used **only** as the
+> `SessionMiddleware` signing secret and authenticates nothing.
+>
+> **Do not expose this service to an untrusted network, and do not process real
+> patient data with it, until authentication and per-patient authorization
+> exist.** See [docs/security.md](docs/security.md) for the detail. A partial
+> authentication system has deliberately not been built, because an
+> incomplete one is worse than a clearly absent one.
+
 This document covers how to report a vulnerability and what protections exist
 today. For the engineering-level detail (threats, controls, and what a
 production deployment still requires), see [docs/security.md](docs/security.md).
@@ -53,10 +70,12 @@ tested; the gaps listed below are real and documented.
 
 ### Not Implemented
 
-These are **absent**, not merely undocumented. Do not expose this service to an
-untrusted network until they are addressed:
+These are **absent**, not merely undocumented. **Do not expose this service to an
+untrusted network until they are addressed** — the absence of authentication
+alone is disqualifying:
 
-- **Authentication and authorization** — every endpoint is public.
+- **Authentication and authorization** — every endpoint is public. *This is the
+  primary production blocker.*
 - **Encryption in transit** — no TLS termination in-repo (expected at a proxy).
 - **Encryption at rest** — uploaded images are stored as plain files.
 - **Durable audit logging** — audit entries go to the application log only.

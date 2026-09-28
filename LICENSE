@@ -1,15 +1,23 @@
 MIT License
 
-Copyright (c) 2025 DEDAN Health
+Copyright (c) 2025 DEDAN Health contributors
 
-> NOTE FOR THE REPOSITORY OWNER
+> ## ⚠️ UNRESOLVED — copyright holder and data provenance
 >
-> The copyright holder above is a placeholder inferred from the project's prior
-> "© 2025 DEDAN Health" footer. **Confirm the correct copyright holder before
-> publishing this repository**, and confirm that all code and assets are either
-> originally authored here or carry a compatible license. The
-> `data/clinical_guidelines/` JSON files are derived from publicly published
-> guidance; review their provenance and terms before redistribution.
+> **1. The copyright holder has not been verified.** The line above is a
+> placeholder. Replace `DEDAN Health contributors` with the real copyright
+> holder (a person or organisation) before relying on this licence.
+>
+> **2. This licence does NOT cover `data/clinical_guidelines/`.** That directory
+> contains files attributed to the World Health Organization and has an
+> unresolved provenance and redistribution status. It is excluded from the
+> grant below. See [data/clinical_guidelines/PROVENANCE.md](data/clinical_guidelines/PROVENANCE.md).
+>
+> **3. Brand assets are excluded too.** `logo.jpeg` and
+> `web-portal/public/images/` are not covered by this licence.
+>
+> The grant below applies to the source code in `backend-v2/`, `web-portal/`,
+> `scripts/`, and the documentation in `docs/` and the root Markdown files.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

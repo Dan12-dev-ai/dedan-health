@@ -10,10 +10,16 @@ example responses are real captures from the offline provider.
 
 ## Authentication
 
-**None.** No endpoint requires or accepts credentials. This is a deliberate
-limitation of a prototype, not an oversight in the documentation — see
-[docs/security.md](security.md) for what would be required before exposing this
-service to an untrusted network.
+> ⛔ **None. This is a production blocker.** Verified by inspection:
+> `main_clinical.py` defines no `APIKeyHeader`, no `OAuth2PasswordBearer`, and no
+> auth dependency. `ADMIN_API_KEY` is read from settings but used only as the
+> `SessionMiddleware` signing secret — it authenticates nothing. Every endpoint
+> below is reachable by anyone who can reach the network path. Do not expose
+> this service to an untrusted network. See [security.md](security.md).
+
+No endpoint requires or accepts credentials. This is a deliberate, documented
+limitation of a prototype — not an oversight in the documentation. What would
+be required before any exposure is described in [security.md](security.md).
 
 The only user-facing gate is the `consent` field on `POST /api/analyze`, which
 is a request-scoped assertion, not an authenticated authorization.

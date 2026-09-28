@@ -158,7 +158,7 @@ The base URL comes from `VITE_API_URL`, defaulting to `http://localhost:8000`.
 ## Testing
 
 ```bash
-npm test                       # 14 tests, 1 suite
+npm test                       # 25 tests, 2 suites
 npx tsc --noEmit               # 0 errors
 ```
 
@@ -173,9 +173,11 @@ has an identical public surface. This keeps application code free of
 
 ### Coverage gap
 
-`@testing-library/react` is installed but **no component tests exist**. Pages
-and components are not covered by render tests. Adding them is the
-highest-value frontend improvement.
+`SeverityBadge`, `ProgressIndicator`, and `AssessmentShell` are covered in
+`src/__tests__/components.test.tsx`. The page-level components
+(`AssessPage`, `ResultsPage`, `ConsentPage`, …) and the remaining assessment
+input components still have no render tests. Adding them is the highest-value
+frontend improvement.
 
 ## Not implemented
 

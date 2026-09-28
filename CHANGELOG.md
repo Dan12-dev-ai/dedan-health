@@ -32,8 +32,10 @@ it actually exists, not a release history.
 - **Medication safety service** — educational medication information, pharmacy
   package-verification workflow, and questions to ask a pharmacist. Every entry
   is flagged `is_educational_only`.
-- **Evidence source registry** — prioritised authoritative sources (WHO, CDC,
-  FDA, NICE, MSF, PubMed, Mayo Clinic, Cleveland Clinic).
+- **Evidence citation registry** — a prioritised list of authoritative sources
+  (WHO, CDC, FDA, NICE, MSF, PubMed, Mayo Clinic, Cleveland Clinic) with
+  citations attached to responses. **Not a retrieval system** — see "Known
+  limitations".
 - **Multimodal orchestrator** — modality detection, clinical context assembly,
   provider selection, safety validation, and audit logging.
 - **Web portal** — React 18 + TypeScript + Vite assessment flow, results view,
@@ -46,9 +48,24 @@ it actually exists, not a release history.
 - **Developer tooling** — `Makefile`, `scripts/setup-and-run.sh`,
   `scripts/stop.sh`, `scripts/health-check.sh`, `scripts/test-system.sh`,
   `scripts/check-format.sh`.
-- **Automated tests** — 53 backend tests (pytest) and 14 frontend tests (Jest).
-- **CI** — GitHub Actions running backend tests, TypeScript type-checking, and
-  the frontend build, with no provider credentials.
+- **Automated tests** — 53 backend tests (pytest) and 25 frontend tests (Jest),
+  including component tests for the safety-critical `SeverityBadge` and the
+  `ProgressIndicator` / `AssessmentShell` workflow components.
+- **CI** — GitHub Actions running backend tests, TypeScript type-checking, the
+  frontend build, and shell syntax checks, with no provider credentials.
+
+### Documentation
+
+- `docs/security.md`, `docs/api.md`, and the README now carry an explicit
+  **⛔ production-blocker notice** stating that the API has no authentication or
+  authorization and that `ADMIN_API_KEY` authenticates nothing.
+- `docs/ai-providers.md` documents provider selection, the credential-free mock
+  mode, and why real-provider tests are excluded from CI.
+- `data/clinical_guidelines/PROVENANCE.md` records the provenance status of the
+  guideline JSON files, which are excluded from the repository licence.
+- `docs/evidence-system.md` was renamed to
+  `docs/evidence-citation-registry.md` so the filename matches what the code
+  does.
 
 ### Fixed
 
@@ -58,10 +75,15 @@ it actually exists, not a release history.
   reported success without running the analysis, response validation, or error
   handling checks. The branch is now closed at the point of the check and
   failures are counted.
-- `backend-v2/requirements.txt` did not match the code. It omitted `Pillow` and
-  `google-generativeai`, both imported at module load, and pinned obsolete
-  versions of several packages. It now lists only the packages the Clinical
-  API actually imports.
+- `backend-v2/requirements.txt` did not match the code. It omitted `Pillow`,
+  `google-generativeai`, `itsdangerous`, and `numpy`, all of which are imported
+  at module load, and pinned obsolete versions of several packages. The first
+  CI run on GitHub Actions failed on the missing `itsdangerous` before this was
+  caught. The file now lists only the packages the Clinical API actually
+  imports, verified in a clean virtualenv.
+- `@testing-library/jest-dom` was a devDependency but was never registered via
+  `setupFilesAfterEnv`, so no DOM matcher existed and no component test could be
+  written. Added `web-portal/jest.setup.ts`.
 
 ### Changed
 
@@ -73,11 +95,18 @@ it actually exists, not a release history.
 
 ### Known limitations
 
-- **No authentication or authorization.** Every endpoint is public.
-- **Evidence retrieval is not real retrieval.** The registry constructs
-  citations to a curated source list; it does not fetch, index, or quote source
-  documents, and `date_published` is never populated. See
-  `docs/evidence-system.md`.
+- **⛔ No authentication or authorization.** Every endpoint is public. This is a
+  production blocker, documented as such in the README, `docs/security.md`, and
+  `docs/api.md`.
+- **Evidence is a citation registry, not retrieval.**
+  `evidence_retrieval_enhanced.py` contains no HTTP client and performs no
+  network requests. It does not fetch, index, or quote source documents, and
+  `date_published` is never populated. Nothing in a response has been checked
+  against the source it cites. See `docs/evidence-citation-registry.md`.
+- **Copyright holder and data provenance are unresolved.** The `LICENSE`
+  copyright line is a placeholder, and `data/clinical_guidelines/` is excluded
+  from the licence because its redistribution rights are unconfirmed. Those
+  files are not used by the verified Clinical API.
 - **No speech-to-text.** The voice modality accepts a client-supplied
   transcript; the backend never decodes audio.
 - **Offline mode cannot interpret images.** The offline provider explicitly
@@ -88,6 +117,9 @@ it actually exists, not a release history.
   not persisted to a tamper-evident store.
 - **In-memory state.** The rate limiter, image metadata index, and conversation
   memory are process-local and do not survive a restart or scale horizontally.
+- **Live AI providers are untested.** No test calls Gemini or OpenAI, so their
+  response-parsing paths are unverified. This is deliberate — see
+  `docs/ai-providers.md`.
 - **Not clinically validated.** No prospective study, outcome evaluation, or
   regulatory review has been performed.
 - **Prototype code is retained but unwired.** `backend-v2/agents/` (LangChain +

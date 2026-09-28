@@ -87,7 +87,7 @@ interest here is in the parts a chat UI hides:
   with a pharmacy package-verification workflow. Never a prescription.
 - **Evidence source registry** — prioritised authoritative sources. *Currently a
   curated registry that constructs citations, **not** a live retrieval system;
-  see [docs/evidence-system.md](docs/evidence-system.md).*
+  see [docs/evidence-citation-registry.md](docs/evidence-citation-registry.md).*
 - **Rate limiting, CORS, structured error envelopes, stack-trace suppression.**
 
 **Prototype / not wired into the running system:** the LangChain+CrewAI agent
@@ -120,8 +120,6 @@ flowchart TD
 Component responsibilities and the reasoning behind the separation are in
 [docs/architecture.md](docs/architecture.md). Source:
 [`docs/diagrams/architecture.mmd`](docs/diagrams/architecture.mmd).
-
-<!-- SECTION-2 -->
 
 ## Technology Stack
 
@@ -181,23 +179,31 @@ documentation, including what is *not* implemented, is in
 All providers implement the same `MultimodalAIProvider` contract, so the
 orchestrator never branches on vendor:
 
-| Provider | Module | Requires credentials | Cost |
-| --- | --- | --- | --- |
-| `offline` | `providers/offline_provider.py` | No | $0 |
-| `gemini` | `providers/gemini_provider.py` | Yes | Usage-billed |
-| `openai` | `providers/openai_provider.py` | Yes | Usage-billed |
+| Provider | Module | Requires credentials | Cost | In CI |
+| --- | --- | --- | --- | --- |
+| `offline` | `providers/offline_provider.py` | **No** | $0 | Yes |
+| `gemini` | `providers/gemini_provider.py` | Yes | Usage-billed | No |
+| `openai` | `providers/openai_provider.py` | Yes | Usage-billed | No |
 
-## Evidence Retrieval
+Mock mode needs **no credentials at all** — verified by running the API with
+every credential and mode variable unset. Full configuration reference:
+[docs/ai-providers.md](docs/ai-providers.md).
 
-`EvidenceRetriever` maintains a prioritised registry (WHO, CDC, FDA, NICE, MSF,
-PubMed, Mayo Clinic, Cleveland Clinic) and attaches citations to responses,
-scaling the source set by requested evidence level.
+## Evidence Citation Registry
+
+`EvidenceRetriever` maintains a prioritised registry of authoritative sources
+(WHO, CDC, FDA, NICE, MSF, PubMed, Mayo Clinic, Cleveland Clinic) and attaches
+citations to responses, scaling the source set by requested evidence level.
 
 **Be precise about what this is today:** it builds *citations to a curated
-source list*. It does **not** fetch, index, or quote source documents, and
-`date_published` is not populated. Responses therefore carry source *provenance
-metadata*, not verified quotations. See
-[docs/evidence-system.md](docs/evidence-system.md).
+source list*. **The module contains no HTTP client and performs no network
+requests.** It does not fetch, index, or quote source documents, and
+`date_published` is never populated. Responses therefore carry source
+*provenance metadata*, not verified quotations. Nothing in a response has been
+checked against the source it cites.
+
+See [docs/evidence-citation-registry.md](docs/evidence-citation-registry.md) for
+the full statement of limitations and the path to real retrieval.
 
 ## Medication Safety
 
@@ -306,10 +312,11 @@ Verified on Python 3.14.6 / Node 22.23.2:
 | Check | Command | Result |
 | --- | --- | --- |
 | Backend tests | `pytest tests/` (53 tests) | **PASS** |
-| Frontend tests | `npm test` (14 tests) | **PASS** |
+| Frontend tests | `npm test` (25 tests) | **PASS** |
 | TypeScript | `tsc --noEmit` | **PASS** (0 errors) |
 | Frontend build | `npm run build` | **PASS** |
 | System test | `./scripts/test-system.sh` | **PASS** |
+| GitHub Actions | CI (backend, frontend, shell) | **PASS** |
 
 ## Project Structure
 
@@ -331,7 +338,22 @@ DEDAN-Health/
 │   └── src/__tests__/       # Jest suite
 ├── scripts/                 # setup-and-run, stop, health-check, test-system
 ├── docs/                    # Architecture, API, security, decisions, …
-├── data/clinical_guidelines/# Guideline JSON (WHO, Amharic, Swahili)
+│   ├── architecture.md      # Verified components and why they are separated
+│   ├── api.md               # Every endpoint, with real schemas and responses
+│   ├── ai-providers.md      # Provider selection and credential-free mock mode
+│   ├── evidence-citation-registry.md  # Citations — NOT retrieval
+│   ├── security.md          # Controls that exist, and what does not
+│   ├── medication-safety.md # Information vs verification vs prescribing
+│   ├── multimodal.md        # Per-modality support, incl. what is missing
+│   ├── testing.md           # Test layers and coverage gaps
+│   ├── development.md       # Setup, configuration, debugging
+│   ├── deployment.md        # Local only; containers are not implemented
+│   ├── engineering-decisions.md    # ADRs with trade-offs
+│   ├── engineering-highlights.md  # Problems actually solved
+│   ├── troubleshooting.md   # Failure modes
+│   └── diagrams/            # Mermaid sources
+├── data/clinical_guidelines/# Guideline JSON — see PROVENANCE.md (licence
+│                             # excluded; NOT used by the verified API)
 ├── kubernetes/              # Manifests only — not deployed
 ├── backend/, mobile-app/, mobile/, web/,
 │   clinic-dashboard/, messaging-backend/   # PROTOTYPES (see docs/architecture.md)
@@ -339,6 +361,10 @@ DEDAN-Health/
 ```
 
 ## Security
+
+> ⛔ **Production blocker: the API has no authentication.** Every endpoint is
+> public. Do not expose this service to an untrusted network or handle real
+> patient data with it. See [docs/security.md](docs/security.md).
 
 - `.env` files are git-ignored; only `*.example` templates are tracked.
 - No credentials are present in the repository or its history.
@@ -413,9 +439,21 @@ behaviour require a clinical-safety rationale in the PR description.
 
 ## License
 
-[MIT](LICENSE) — see [LICENSE](LICENSE) for the full text. **The copyright
-holder must be confirmed by the repository owner before publishing**; see the
-note in that file.
+The source code in `backend-v2/`, `web-portal/`, `scripts/`, and the
+documentation is offered under the [MIT License](LICENSE).
+
+**Two exclusions, both deliberate:**
+
+- `data/clinical_guidelines/` is **not** covered. Those files are attributed
+  to the World Health Organization and their redistribution rights are
+  unresolved — see
+  [PROVENANCE.md](data/clinical_guidelines/PROVENANCE.md). They are not used by
+  the verified Clinical API, so removing them would not change system
+  behaviour.
+- Brand assets (`logo.jpeg`, `web-portal/public/images/`) are not covered.
+
+**The copyright holder in `LICENSE` is still a placeholder and has not been
+verified.** It must be replaced with the real holder.
 
 ---
 
@@ -443,9 +481,7 @@ real schemas: [docs/api.md](docs/api.md).
 | `DELETE` | `/api/images/{id}` | Delete an image | None |
 
 **There is no authentication or authorization on any endpoint.** This is a
-prototype; see [docs/security.md](docs/security.md) for what would be required
-before any network exposure.
-
-<!-- SECTION-3 -->
+production blocker; see [docs/security.md](docs/security.md) for what would be
+required before any network exposure.
 
 

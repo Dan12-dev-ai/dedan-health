@@ -24,5 +24,10 @@ module.exports = {
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+  // jest-dom is installed but was never wired up, so matchers such as
+  // `toBeInTheDocument` and `toHaveAttribute` were unavailable. Component
+  // tests need it; service tests simply do not touch it.
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/**/*.d.ts', '!src/__mocks__/**'],
 };
+

@@ -16,7 +16,7 @@
 | Layer | Tool | Scope | Count |
 | --- | --- | --- | --- |
 | Backend unit + HTTP | pytest + Starlette `TestClient` | `backend-v2/tests/` | 53 |
-| Frontend unit | Jest + jsdom | `web-portal/src/__tests__/` | 14 |
+| Frontend unit | Jest + jsdom | `web-portal/src/__tests__/` | 25 |
 | Type checking | `tsc --noEmit` | Whole frontend | — |
 | Build | Vite | Whole frontend | — |
 | System smoke | bash + curl | Live HTTP against a running API | 4 stages |
@@ -73,14 +73,32 @@ binaries — self-contained, reviewable, and no extra test dependency.
 
 ## Frontend coverage
 
-`web-portal/src/__tests__/multimodalService.test.ts` — 14 tests covering the
-multimodal payload path, including the detail that `image_data_list` expects
-raw base64 rather than a `data:` URL, which the backend parses differently.
+Two suites, 25 tests total.
+
+`multimodalService.test.ts` (14 tests) covers the multimodal payload path,
+including the detail that `image_data_list` expects raw base64 rather than a
+`data:` URL, which the backend parses differently.
+
+`components.test.tsx` (11 tests) covers the safety-critical and
+workflow-critical UI:
+
+- **`SeverityBadge`** — the component through which urgency reaches the user.
+  Its central invariant is that **colour is never the only signal**, so the
+  tests assert the accessible name (`Urgency level: Emergency`), the visible
+  text, and that emergency and routine are distinguishable. A regression here
+  would be invisible in a snapshot and dangerous in production.
+- **`ProgressIndicator`** — template interpolation and `aria-valuenow`.
+- **`AssessmentShell`** — renders title, lead, and reassurance notice, and only
+  shows progress when supplied.
 
 Jest maps `src/services/apiClient` to a stub because the real module reads
 `import.meta.env`, which Babel cannot lower to CommonJS. The stub has an
 identical public surface, so application code stays free of `import.meta` and
 loads under both Vite and Jest.
+
+`jest.setup.ts` registers the `@testing-library/jest-dom` matchers. The package
+was already a devDependency but was never wired into `jest.config.cjs`, so
+those matchers did not exist and no DOM assertion could be written.
 
 ## System test
 
@@ -126,8 +144,8 @@ backend-v2 $ python3 -m pytest tests/ -q
 53 passed in 3.03s
 
 web-portal $ npx jest --silent
-Test Suites: 1 passed, 1 total
-Tests:       14 passed, 14 total
+Test Suites: 2 passed, 2 total
+Tests:       25 passed, 25 total
 
 web-portal $ npx tsc --noEmit
 (0 errors)
@@ -153,9 +171,10 @@ Honest accounting of what is **not** tested:
 - **No live provider tests.** Gemini and OpenAI adapters are untested against
   real APIs; their response-parsing paths are unverified.
 - **No vision tests.** Nothing covers actual image interpretation.
-- **No frontend component tests.** Pages and components have no render tests;
-  only `multimodalService` is covered. `@testing-library/react` is installed
-  but unused.
+- **Limited frontend component tests.** `SeverityBadge`, `ProgressIndicator`,
+  and `AssessmentShell` are covered, but the page-level components
+  (`AssessPage`, `ResultsPage`, `ConsentPage`, …) and the rest of the assessment
+  input surface have no render tests.
 - **No load or performance tests.**
 - **No security tests** for auth, authorisation, or injection.
 - **No accessibility tests.**
