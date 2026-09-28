@@ -17,6 +17,11 @@
 fastapi>=0.110
 uvicorn[standard]>=0.27
 python-multipart>=0.0.9        # multipart/form-data for image uploads
+itsdangerous>=2.1              # SessionMiddleware; pulled in by starlette
+                                # only under the `full` extra, so it is not a
+                                # transitive dependency of uvicorn/fastapi.
+                                # main_clinical.py imports SessionMiddleware
+                                # unconditionally, so this is required.
 
 # --- Settings & validation --------------------------------------------------
 pydantic>=2.6
@@ -24,6 +29,11 @@ pydantic-settings>=2.2         # env-driven Settings (app/core/config.py)
 
 # --- Image pipeline ---------------------------------------------------------
 Pillow>=10.2                    # image_service.py: decode + quality assessment
+numpy>=1.26                     # providers/image_validation.py: brightness,
+                                # contrast and blur metrics. Imported at module
+                                # load via providers/__init__.py, so it is
+                                # required even though it is not obvious from
+                                # the route handlers.
 
 # --- AI provider adapters ---------------------------------------------------
 # Imported by providers/gemini_provider.py and providers/openai_provider.py.
@@ -34,3 +44,19 @@ openai>=1.30
 # --- Test suite -------------------------------------------------------------
 httpx>=0.27                     # fastapi.testclient transport
 pytest>=8.0
+
+# ---------------------------------------------------------------------------
+# NOT listed here, and why
+#
+# This file covers the Clinical API only (`main_clinical:app`). The prototype
+# modules additionally import langchain, langchain_core, langchain_openai,
+# crewai, chromadb, sentence-transformers, pandas, scikit-learn, joblib,
+# structlog, sqlalchemy, aioredis, asyncpg, boto3, cryptography, stripe,
+# jinja2, aiofiles, websockets, speech-recognition, and opencv-python.
+#
+# None of those are reachable from `main_clinical`, and none are needed to run
+# or test it. See docs/architecture.md section 6. If you intend to run a
+# prototype module, install its own dependencies separately rather than adding
+# them here — doing so previously made the file un-installable on modern
+# Python.
+# ---------------------------------------------------------------------------
